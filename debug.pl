@@ -2,8 +2,11 @@
 
 use strict;
 use warnings;
+use IO::Handle;
 # Set up the serial port
 use Device::SerialPort;
+# set SIGQUIT handler
+use sigtrap qw(die QUIT);
 
 my $device = shift @ARGV;
 my $port = Device::SerialPort->new($device);
@@ -14,6 +17,11 @@ $port->databits(8);
 $port->parity("none");
 $port->stopbits(1);
 
+# print how to quit =)
+STDOUT->autoflush(1);
+print "\nUse <Ctrl> + <\\>(QUIT signal) to quit.\n\n";
+sleep(2);
+
 while (1) {
   # Poll to see if any data is coming in
   my $char = $port->lookfor();
@@ -21,5 +29,4 @@ while (1) {
   # If we get data, then print it
   # Send a number to the arduino
   print "LOG:$char\n" if $char;
-  sleep(1);
 } 
