@@ -3,12 +3,11 @@
 
 class Flat {
   private:
-    int okPin;
-    int failPin;
+    int pin;
+  public:
+    Flat(int pin);
+    ~Flat();
     void ok();
     void fail();
-  public:
-    Flat(int okPin, int failPin);
-    ~Flat();
 };
 #endif
