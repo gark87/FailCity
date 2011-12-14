@@ -26,7 +26,7 @@ AVRDUDE_ARD_BAUDRATE = 57600
 SRC_DIRS = FailCity Ethernet EthernetDHCP EthernetDNS
 # Everything gets built in here
 OBJDIR = build-cli
-DEBUG_SCRIPT = debug.pl
+DEBUG_SCRIPT = ./debug.pl
 
 ######################################################################
 # Local sources
