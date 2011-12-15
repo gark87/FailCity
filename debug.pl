@@ -17,8 +17,8 @@ $port->databits(8);
 $port->parity("none");
 $port->stopbits(1);
 
-# print how to quit =)
 STDOUT->autoflush(1);
+# print how to quit =)
 print "\nUse <Ctrl> + <\\>(QUIT signal) to quit.\n\n";
 sleep(2);
 
