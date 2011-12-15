@@ -8,6 +8,7 @@
 #include "flat.h"
 #include "config.h"
 #include "Network.h"
+#include "html.h"
 
 long previousMillis = 0; 
 const long interval = 1000;
@@ -23,6 +24,11 @@ void setup() {
   Network.setMacAddr(macAddr);
 }
 
+int printOnTag(Client *c, const char * const str) {
+  LOG(str);
+  return 0;
+}
+
 void loop() {
   Client client(Network.getIpAddr(TEAMCITY_SERVER), 80);
   if (client.connect()) {
@@ -32,12 +38,9 @@ void loop() {
   } else {
     LOG("connection failed");
   }
-  while(client.connected()) {
-    if (client.available()) {
-      char c = client.read();
-      Serial.print(c);
-    }
-  }
+  parseHTML(&client, &printOnTag);
   LOG("disconnecting.");
   client.stop();
+  for(;;)
+    ;
 }
