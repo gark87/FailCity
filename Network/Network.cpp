@@ -5,19 +5,19 @@
 #include <Ethernet.h>
 #include <EthernetDNS.h>
 
-#include "connect.h"
+#include "HardwareSerial.h"
+#include "Network.h"
 #include "config.h"
 #include "options.h"
 
-uint8_t mac[] = MAC;
-const char * const hostname = TEAMCITY_SERVER;
+static const char* ip_to_str(const uint8_t* const ipAddr);
 
-static const char* ip_to_str(const uint8_t* const);
+class Network Network;
 
-void connect_setup()
-{
+void Network::setMacAddr(uint8_t * const macAddr) {
+  this->macAddr = macAddr;
   LOG("Attempting to obtain a DHCP lease...");
-  EthernetDHCP.begin(mac);
+  EthernetDHCP.begin(macAddr);
 
   uint8_t* myIp = (uint8_t*)EthernetDHCP.ipAddress();
   uint8_t* gatewayIp = (uint8_t*)EthernetDHCP.gatewayIpAddress();
@@ -28,43 +28,39 @@ void connect_setup()
   LOG("My IP address is ");
   LOG(ip_to_str(myIp));
 
-  LOG("Gateway IP address is ");
+  LOG("is ");
   LOG(ip_to_str(gatewayIp));
 
   LOG("DNS IP address is ");
-  LOG(ip_to_str(dnsIp));
+  LOG(ip_to_str((uint8_t *)dnsIp));
   
-  Ethernet.begin(mac, myIp, gatewayIp);
+  Ethernet.begin(macAddr, myIp, gatewayIp);
   EthernetDNS.setDNSServer(dnsIp);
 }
 
-void connect_loop()
-{
+byte *Network::getIpAddr(const char * const hostname) {
     EthernetDHCP.maintain();
     LOG("Resolving");
     LOG(hostname);
 
-    byte teamcityIp[] = {0,0,0,0};
-    DNSError err = EthernetDNS.resolveHostName(hostname, teamcityIp);
+    DNSError err = EthernetDNS.resolveHostName(hostname, hostIp);
     if (DNSSuccess == err) {
       LOG("The IP address is "); 
-      LOG(ip_to_str(teamcityIp));
+      LOG(ip_to_str(hostIp));
+      return hostIp;
     } else if (DNSTimedOut == err) {
       LOG("Timed out.");
-      LOG(ip_to_str(teamcityIp));
     } else if (DNSNotFound == err) {
       LOG("Does not exist.");
-      LOG(ip_to_str(teamcityIp));
     } else {
       LOG("Failed with error code "); 
       LOG((int)err);
     }
+    return 0;
 }
 
-static const char* ip_to_str(const uint8_t* const ipAddr)
-{
-    static char buf[16];
-      sprintf(buf, "%d.%d.%d.%d\0", ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3]);
-        return buf;
+static const char* ip_to_str(const uint8_t* const ip) {
+  static char buf[16];
+  sprintf(buf, "%d.%d.%d.%d\0", ip[0], ip[1], ip[2], ip[3]);
+  return buf;
 }
-
