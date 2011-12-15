@@ -10,7 +10,7 @@
 #include "options.h"
 
 uint8_t mac[] = MAC;
-const char * const hostname = "google.com";
+const char * const hostname = TEAMCITY_SERVER;
 
 static const char* ip_to_str(const uint8_t* const);
 
@@ -20,7 +20,7 @@ void connect_setup()
   EthernetDHCP.begin(mac);
 
   uint8_t* myIp = (uint8_t*)EthernetDHCP.ipAddress();
-  const byte* gatewayIp = EthernetDHCP.gatewayIpAddress();
+  uint8_t* gatewayIp = (uint8_t*)EthernetDHCP.gatewayIpAddress();
   const byte* dnsIp = EthernetDHCP.dnsIpAddress();
 
   LOG("A DHCP lease has been obtained.");
@@ -34,9 +34,8 @@ void connect_setup()
   LOG("DNS IP address is ");
   LOG(ip_to_str(dnsIp));
   
-  Ethernet.begin(mac, myIp);
-  const byte a[] = { 0x08,0x08,0x08,0x08};
-  EthernetDNS.setDNSServer(a);
+  Ethernet.begin(mac, myIp, gatewayIp);
+  EthernetDNS.setDNSServer(dnsIp);
 }
 
 void connect_loop()
